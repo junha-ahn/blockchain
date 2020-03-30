@@ -1,3 +1,4 @@
+import sha256 from 'sha256'
 class Block {
   constructor(
     public index:number,
@@ -35,10 +36,11 @@ export default class BlockChain {
     BlockChain.chain.push(newBlock)
     return newBlock
   }
-  static getLastBlcok = () => BlockChain.chain[BlockChain.chain.length - 1]
-  static createNewTransaction = (amount: number, sender: string, recipient: string) => {
+  static getLastBlcok = (): Block => BlockChain.chain[BlockChain.chain.length - 1]
+  static createNewTransaction = (amount: number, sender: string, recipient: string): number => {
     const newTransaction = new Transaction(amount, sender, recipient)
     BlockChain.pendingTransactions.push(newTransaction)
     return BlockChain.getLastBlcok().index + 1
   }
+  static hashBlock = (previousBlockHash, currentBlockData, nonce): string => sha256(previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData))
 }
