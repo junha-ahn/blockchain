@@ -22,7 +22,9 @@ class Transaction {
 export default class BlockChain {
   public chain: Block[] = []
   public pendingTransactions: Transaction[] = []
-  constructor() {}
+  constructor() {
+    this.createNewBlcok(100, '0', '0')
+  }
   public createNewBlcok = (nonce, previousBlockHash, hash) => {
     const newBlock = new Block(
       this.chain.length + 1,
@@ -32,7 +34,7 @@ export default class BlockChain {
       previousBlockHash,
       Date.now()
     )
-    this.pendingTransactions = [];
+    this.pendingTransactions = []
     this.chain.push(newBlock)
     return newBlock
   }
@@ -47,7 +49,7 @@ export default class BlockChain {
     let nonce = 0
     let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce)
     while (hash.substring(0, 4) !== '0000') {
-      nonce++;
+      nonce++
       hash = this.hashBlock(previousBlockHash, currentBlockData, nonce)
     }
     return nonce
