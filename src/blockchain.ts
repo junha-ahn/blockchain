@@ -43,4 +43,13 @@ export default class BlockChain {
     return this.getLastBlcok().index + 1
   }
   public hashBlock = (previousBlockHash, currentBlockData, nonce): string => sha256(previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData))
+  public proofOfWerk = (previousBlockHash, currentBlockData) => {
+    let nonce = 0
+    let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce)
+    while (hash.substring(0, 4) !== '0000') {
+      nonce++;
+      hash = this.hashBlock(previousBlockHash, currentBlockData, nonce)
+    }
+    return nonce
+  }
 }
