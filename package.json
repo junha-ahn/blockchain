@@ -4,7 +4,8 @@
   "description": "Learn-Blockchain-Programming",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev src/blockchain"
+    "dev": "ts-node-dev src/blockchain",
+    "test": "ts-node-dev src/test"
   },
   "repository": {
     "type": "git",
