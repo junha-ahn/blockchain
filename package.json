@@ -1,0 +1,26 @@
+{
+  "name": "blockchain",
+  "version": "1.0.0",
+  "description": "Learn-Blockchain-Programming",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev src/blockchain"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/junha-ahn/blockchain.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/junha-ahn/blockchain/issues"
+  },
+  "homepage": "https://github.com/junha-ahn/blockchain#readme",
+  "dependencies": {
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^1.0.0-pre.44"
+  }
+}
