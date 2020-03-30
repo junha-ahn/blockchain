@@ -13,4 +13,4 @@ BlockChain.createNewTransaction(300, 'OIUOEDJETH8754DHKD', '78SHNEG45DER56')
 
 BlockChain.createNewBlcok(9878934, 'OIUOEREDHKHKD', '78s97d4x6dsf')
 
-console.log(BlockChain.chain[2])
+console.log(BlockChain.chain)
