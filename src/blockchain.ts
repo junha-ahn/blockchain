@@ -1,4 +1,4 @@
-import sha256 from 'sha256'
+import * as sha256 from 'sha256'
 class Block {
   constructor(
     public index:number,
