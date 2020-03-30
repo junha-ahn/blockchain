@@ -45,9 +45,10 @@ export default (app: Router) => {
     }
     const nonce = bitconin.proofOfWerk(previousBlockHash, currentBlockData)
     const blockHash = bitconin.hashBlock(previousBlockHash, currentBlockData, nonce)
+    
+    const nodeAddress = 'temp'
+    bitconin.createNewTransaction(12.5, "00", nodeAddress) 
     const newBlock = bitconin.createNewBlcok(nonce, previousBlockHash, blockHash)
-
-    // bitconin.createNewTransaction(12.5, "00", nodeAddress) 
     // TODO: get node address
     return {
       httpCode: 200,
