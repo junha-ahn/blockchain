@@ -4,7 +4,7 @@
   "description": "Learn-Blockchain-Programming",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev src/blockchain",
+    "dev": "ts-node-dev src/server",
     "test": "cross-env NODE_ENV=test mocha -r ts-node/register ./**/*.test.ts"
   },
   "repository": {
@@ -25,10 +25,14 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
+    "@types/express": "^4.17.3",
     "@types/mocha": "^7.0.2",
     "chai": "^4.2.0",
     "cross-env": "^7.0.2",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "mocha": "^7.1.1",
-    "ts-node-dev": "^1.0.0-pre.44"
+    "ts-node-dev": "^1.0.0-pre.44",
+    "winston": "^3.2.1"
   }
 }

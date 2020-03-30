@@ -1,5 +1,5 @@
 import * as chai from 'chai'
-import BlockChainService from '../src/blockchain'
+import BlockChainService from '../src/services/blockchain'
 const expect = chai.expect;
 
 
