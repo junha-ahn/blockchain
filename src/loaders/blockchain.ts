@@ -1,4 +1,10 @@
 import * as sha256 from 'sha256'
+// TODO: Blockchain Class Public/Static 구조 개선 고민
+//
+// - 테스트 생각
+//    - 각 테스트 별 초기화가 필요함. beforeEach.. 등
+//    - express api 내에서 인스턴스로 존재하는것이 아닌, static 존재?..
+//
 class Block {
   constructor(
     public index:number,
