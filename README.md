@@ -24,4 +24,4 @@ Learn-Blockchain-Programming
 
 그 외
 
-- 추가 학습을 통해 더 많은 학습을 하고 싶다
+- 추가 학습 필요
