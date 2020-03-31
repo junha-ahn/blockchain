@@ -94,4 +94,35 @@ export default class BlockChain {
     const correctGenesisBlock = genesisBlock.nonce === 100 && genesisBlock.previousHash === "0" && genesisBlock.hash === "0"
     return vaildChain && correctGenesisBlock
   }
+  public getBlock = (blockHash) => _.find(this.chain, block => block.hash === blockHash)
+  public getTransaction = (transactionId) => {
+    const data = {
+      transaction: null,
+      blcok: null,
+    }
+    _.forEach(this.chain, block => 
+      _.forEach(block.transactions, tr => {
+        if (tr.transactionId === transactionId) {
+          data.transaction = tr
+          data.blcok = block
+          return true
+        }
+    }))
+    return data
+  }
+  public getAddressData = (address) => {
+    const addressTransaction = []
+    _.forEach(this.chain, block => 
+      _.forEach(block.transactions, tr => {
+        if (tr.recipient === address || tr.sender === address) addressTransaction.push(tr)
+    }))
+    const AddressBalance = _.reduce(addressTransaction, (acc, cur) => {
+      cur.recipient === address ? acc += cur.amount : acc -= cur.amount
+      return acc
+    }, 0)
+    return {
+      addressTransaction,
+      AddressBalance
+    }
+  }
 }
