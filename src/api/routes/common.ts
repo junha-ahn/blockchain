@@ -44,14 +44,27 @@ export default (app: Router) => {
     const blockHash = bitcoin.hashBlock(previousBlockHash, currentBlockData, nonce)
     
     const nodeAddress = 'temp'
-    const newTransaction = bitcoin.createNewTransaction(12.5, "00", nodeAddress) 
-    bitcoin.addTransactionToPendingTransaction(newTransaction)
+    // const newTransaction = bitcoin.createNewTransaction(12.5, "00", nodeAddress) 
+    // bitcoin.addTransactionToPendingTransaction(newTransaction)
     const newBlock = bitcoin.createNewBlcok(nonce, previousBlockHash, blockHash)
     // TODO: get node address
-    return {
-      httpCode: 200,
-      data: newBlock,
-    }
+    const promises = []
+    _.forEach(bitcoin.networkNodes, url => {
+      promises.push(axios.post(`${url}/receive-new-block`, {
+        newBlock,
+      }))
+    })
+    return Promise.all(promises).then(async data => {
+      await axios.post(`${bitcoin.currentNodeUrl}/transaction/broadcast`, {
+        amount: 12.5,
+        sender: "00",
+        recipient: nodeAddress,
+      })
+      return {
+        httpCode: 200,
+        data: newBlock,
+      }
+    })
   }))
 
   route.post('/register-and-broadcast-node', container(async (req): Promise<Result> => {
@@ -118,5 +131,22 @@ export default (app: Router) => {
         message: '성공',
       }
     })
+  }))
+  route.post('/receive-new-block', container(async (req): Promise<Result> => {
+    const newBlock = req.body.newBlock
+    const lastBlock = bitcoin.getLastBlcok()
+    const correctHash = lastBlock.hash === newBlock.previousHash
+    const correctIndex = lastBlock.index + 1 === newBlock.index
+    if (!(correctHash && correctIndex)) {
+      return {
+        httpCode: 403,
+        message: '실패',
+      }
+    }
+    bitcoin.pushNewBlock(newBlock)
+    return {
+      httpCode: 200,
+      message: '성공',
+    }
   }))
 }

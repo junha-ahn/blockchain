@@ -39,6 +39,10 @@ export default class BlockChain {
     this.currentNodeUrl = `http://localhost:${config.port}`
     this.createNewBlcok(100, '0', '0')
   }
+  public pushNewBlock = (newBlock) => {
+    this.pendingTransactions = []
+    this.chain.push(newBlock)
+  }
   public createNewBlcok = (nonce, previousBlockHash, hash) => {
     const newBlock = new Block(
       this.chain.length + 1,
@@ -48,8 +52,7 @@ export default class BlockChain {
       previousBlockHash,
       Date.now()
     )
-    this.pendingTransactions = []
-    this.chain.push(newBlock)
+    this.pushNewBlock(newBlock)
     return newBlock
   }
   public getLastBlcok = (): Block => this.chain[this.chain.length - 1]
