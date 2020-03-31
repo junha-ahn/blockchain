@@ -1,5 +1,6 @@
 import * as sha256 from 'sha256'
 import * as _ from 'lodash'
+import { v1 as uuidv1 } from 'uuid';
 import config from '../config'
 // TODO: Blockchain Class Public/Static 구조 개선 고민
 //
@@ -19,11 +20,13 @@ class Block {
   }
 }
 class Transaction {
+  public transactionId: string
   constructor(
     public amount:number,
     public sender: string,
     public recipient: string,
   ) {
+    this.transactionId = uuidv1().split('-').join()
   }
 }
 
@@ -50,9 +53,9 @@ export default class BlockChain {
     return newBlock
   }
   public getLastBlcok = (): Block => this.chain[this.chain.length - 1]
-  public createNewTransaction = (amount: number, sender: string, recipient: string): number => {
-    const newTransaction = new Transaction(amount, sender, recipient)
-    this.pendingTransactions.push(newTransaction)
+  public createNewTransaction = (amount: number, sender: string, recipient: string): Transaction => new Transaction(amount, sender, recipient)
+  public addTransactionToPendingTransaction = (transaction: Transaction): number => {
+    this.pendingTransactions.push(transaction)
     return this.getLastBlcok().index + 1
   }
   public hashBlock = (previousBlockHash, currentBlockData, nonce): string => sha256(previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData))
