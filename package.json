@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev src/server",
+    "build": "tsc",
     "test": "cross-env NODE_ENV=test mocha -r ts-node/register ./**/*.test.ts"
   },
   "repository": {
