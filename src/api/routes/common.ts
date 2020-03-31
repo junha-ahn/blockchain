@@ -4,7 +4,7 @@ import { Router } from 'express'
 import container from '../middlewares/container'
 import { Result, TransactionData } from '../../types'
 
-import bitconin from '../../services/bitconin'
+import bitcoin from '../../services/bitcoin'
 const route = Router()
 
 export default (app: Router) => {
@@ -20,12 +20,12 @@ export default (app: Router) => {
   route.get('/blockchain', container(async (req): Promise<Result> => {
     return {
       httpCode: 200,
-      data: bitconin,
+      data: bitcoin,
     }
   }))
   route.post('/transaction', container(async (req): Promise<Result> => {
     const newTransaction = req.body.newTransaction
-    const blockIndex:number = bitconin.addTransactionToPendingTransaction(newTransaction)
+    const blockIndex:number = bitcoin.addTransactionToPendingTransaction(newTransaction)
     return {
       httpCode: 200,
       message: `Transaction will be added in block ${blockIndex}`,
@@ -34,19 +34,19 @@ export default (app: Router) => {
   }))
 
   route.get('/mine', container(async (req): Promise<Result> => {
-    const lastBlock = bitconin.getLastBlcok()
+    const lastBlock = bitcoin.getLastBlcok()
     const previousBlockHash = lastBlock.hash
     const currentBlockData = {
-      transactions: bitconin.pendingTransactions,
+      transactions: bitcoin.pendingTransactions,
       index: lastBlock.index + 1
     }
-    const nonce = bitconin.proofOfWerk(previousBlockHash, currentBlockData)
-    const blockHash = bitconin.hashBlock(previousBlockHash, currentBlockData, nonce)
+    const nonce = bitcoin.proofOfWerk(previousBlockHash, currentBlockData)
+    const blockHash = bitcoin.hashBlock(previousBlockHash, currentBlockData, nonce)
     
     const nodeAddress = 'temp'
-    const newTransaction = bitconin.createNewTransaction(12.5, "00", nodeAddress) 
-    bitconin.addTransactionToPendingTransaction(newTransaction)
-    const newBlock = bitconin.createNewBlcok(nonce, previousBlockHash, blockHash)
+    const newTransaction = bitcoin.createNewTransaction(12.5, "00", nodeAddress) 
+    bitcoin.addTransactionToPendingTransaction(newTransaction)
+    const newBlock = bitcoin.createNewBlcok(nonce, previousBlockHash, blockHash)
     // TODO: get node address
     return {
       httpCode: 200,
@@ -58,16 +58,16 @@ export default (app: Router) => {
     const {
       newNodeUrl
     } = req.body
-    bitconin.pushNetworkNodes(newNodeUrl)
+    bitcoin.pushNetworkNodes(newNodeUrl)
     const promises = []
-    _.forEach(bitconin.networkNodes, url => {
+    _.forEach(bitcoin.networkNodes, url => {
       promises.push(axios.post(`${url}/register-node`, {
         newNodeUrl,
       }))
     })
     return Promise.all(promises).then(async data => {
       await axios.post(`${newNodeUrl}/register-node-bulk`, {
-        allNetworkNodes: [...bitconin.networkNodes, bitconin.currentNodeUrl],
+        allNetworkNodes: [...bitcoin.networkNodes, bitcoin.currentNodeUrl],
       })
       return {
         httpCode: 200,
@@ -79,7 +79,7 @@ export default (app: Router) => {
     const {
       newNodeUrl
     } = req.body
-    bitconin.pushNetworkNodes(newNodeUrl)
+    bitcoin.pushNetworkNodes(newNodeUrl)
     return {
       httpCode: 200,
       message: '성공',
@@ -90,7 +90,7 @@ export default (app: Router) => {
       allNetworkNodes
     } = req.body
     console.log(allNetworkNodes)
-    _.forEach(allNetworkNodes, url => {bitconin.pushNetworkNodes(url)})
+    _.forEach(allNetworkNodes, url => {bitcoin.pushNetworkNodes(url)})
     return {
       httpCode: 200,
       message: '성공',
@@ -104,10 +104,10 @@ export default (app: Router) => {
       sender,
       recipient,
     }: TransactionData = req.body
-    const newTransaction = bitconin.createNewTransaction(amount, sender, recipient)
-    bitconin.addTransactionToPendingTransaction(newTransaction)
+    const newTransaction = bitcoin.createNewTransaction(amount, sender, recipient)
+    bitcoin.addTransactionToPendingTransaction(newTransaction)
     const promises = []
-    _.forEach(bitconin.networkNodes, url => {
+    _.forEach(bitcoin.networkNodes, url => {
       promises.push(axios.post(`${url}/transaction`, {
         newTransaction,
       }))
