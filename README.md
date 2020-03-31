@@ -16,6 +16,7 @@ Learn-Blockchain-Programming
 아쉬운 점
 
 - express api 테스트는 시간 관계상 못함
+- 함수형 프로그래밍에 대한 이해 부족으로, 함수 조합을 하지 못하고 forEach & Array.push 사용
 
 만족하는 점
 
