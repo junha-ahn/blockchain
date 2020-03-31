@@ -7,6 +7,8 @@ import { Result, TransactionData } from '../../types'
 import bitcoin from '../../services/bitcoin'
 const route = Router()
 
+const requestAllNode = (promises) => Promise.all(promises).then((datas) => _.map(datas, ({data}) => data.data))
+  
 export default (app: Router) => {
   app.use('/', route)
 
@@ -48,23 +50,19 @@ export default (app: Router) => {
     // bitcoin.addTransactionToPendingTransaction(newTransaction)
     const newBlock = bitcoin.createNewBlcok(nonce, previousBlockHash, blockHash)
     // TODO: get node address
-    const promises = []
-    _.forEach(bitcoin.networkNodes, url => {
-      promises.push(axios.post(`${url}/receive-new-block`, {
-        newBlock,
-      }))
+    await requestAllNode(_.map(bitcoin.networkNodes, url => (axios.post(`${url}/receive-new-block`, {
+      newBlock,
+    }))))
+
+    await axios.post(`${bitcoin.currentNodeUrl}/transaction/broadcast`, {
+      amount: 12.5,
+      sender: "00",
+      recipient: nodeAddress,
     })
-    return Promise.all(promises).then(async data => {
-      await axios.post(`${bitcoin.currentNodeUrl}/transaction/broadcast`, {
-        amount: 12.5,
-        sender: "00",
-        recipient: nodeAddress,
-      })
-      return {
-        httpCode: 200,
-        data: newBlock,
-      }
-    })
+    return {
+      httpCode: 200,
+      data: newBlock,
+    }
   }))
 
   route.post('/register-and-broadcast-node', container(async (req): Promise<Result> => {
@@ -72,21 +70,18 @@ export default (app: Router) => {
       newNodeUrl
     } = req.body
     bitcoin.pushNetworkNodes(newNodeUrl)
-    const promises = []
-    _.forEach(bitcoin.networkNodes, url => {
-      promises.push(axios.post(`${url}/register-node`, {
+    
+    await requestAllNode(_.map(bitcoin.networkNodes, url => (
+      axios.post(`${url}/register-node`, {
         newNodeUrl,
-      }))
+    }))))
+    await axios.post(`${newNodeUrl}/register-node-bulk`, {
+      allNetworkNodes: [...bitcoin.networkNodes, bitcoin.currentNodeUrl],
     })
-    return Promise.all(promises).then(async data => {
-      await axios.post(`${newNodeUrl}/register-node-bulk`, {
-        allNetworkNodes: [...bitcoin.networkNodes, bitcoin.currentNodeUrl],
-      })
-      return {
-        httpCode: 200,
-        message: '성공',
-      }
-    })
+    return {
+      httpCode: 200,
+      message: '성공',
+    }
   }))
   route.post('/register-node', container(async (req): Promise<Result> => {
     const {
@@ -119,18 +114,14 @@ export default (app: Router) => {
     }: TransactionData = req.body
     const newTransaction = bitcoin.createNewTransaction(amount, sender, recipient)
     bitcoin.addTransactionToPendingTransaction(newTransaction)
-    const promises = []
-    _.forEach(bitcoin.networkNodes, url => {
-      promises.push(axios.post(`${url}/transaction`, {
+    await requestAllNode(_.map(bitcoin.networkNodes, url => (
+      axios.post(`${url}/transaction`, {
         newTransaction,
-      }))
-    })
-    return Promise.all(promises).then(data => {
-      return {
-        httpCode: 200,
-        message: '성공',
-      }
-    })
+    }))))
+    return {
+      httpCode: 200,
+      message: '성공',
+    }
   }))
   route.post('/receive-new-block', container(async (req): Promise<Result> => {
     const newBlock = req.body.newBlock
@@ -147,6 +138,36 @@ export default (app: Router) => {
     return {
       httpCode: 200,
       message: '성공',
+    }
+  }))
+
+  route.get('/consensus', container(async (req): Promise<Result> => {
+    const blockchains = await requestAllNode(_.map(bitcoin.networkNodes, url => (
+      axios.get(`${url}/blockchain`))))
+    let maxChainLength = bitcoin.chain.length
+    let newLongestChain = null
+    let newPendingTransactions = null
+
+    _.forEach(blockchains, blockchain => {
+      if (blockchain.chain.length > maxChainLength) {
+        maxChainLength = blockchain.chain.length
+        newLongestChain = blockchain.chain
+        newPendingTransactions = blockchain.pendingTransactions
+      }
+    })
+    if (!newLongestChain || (newLongestChain && !bitcoin.chainIsValid(newLongestChain))) {
+      return {
+        httpCode: 401,
+        message: 'Current chain has not been replaced.',
+        data: bitcoin.chain,
+      }
+    }
+    bitcoin.chain = newLongestChain
+    bitcoin.pendingTransactions = newPendingTransactions
+    return {
+      httpCode: 200,
+      message: 'This chain has been replaced',
+      data: bitcoin.chain,
     }
   }))
 }

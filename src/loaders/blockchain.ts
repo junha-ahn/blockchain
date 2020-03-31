@@ -43,6 +43,14 @@ export default class BlockChain {
     this.pendingTransactions = []
     this.chain.push(newBlock)
   }
+  public pushNetworkNodes = (newUrl: string) => {
+    if (!_.some(this.networkNodes, url => url === newUrl) && this.currentNodeUrl != newUrl) {
+      this.networkNodes.push(newUrl)
+      return true
+    }
+    return false
+  }
+
   public createNewBlcok = (nonce, previousBlockHash, hash) => {
     const newBlock = new Block(
       this.chain.length + 1,
@@ -71,11 +79,19 @@ export default class BlockChain {
     }
     return nonce
   }
-  public pushNetworkNodes = (newUrl: string) => {
-    if (!_.some(this.networkNodes, url => url === newUrl) && this.currentNodeUrl != newUrl) {
-      this.networkNodes.push(newUrl)
-      return true
-    }
-    return false
+  public chainIsValid = (blockchain: BlockChain): boolean => {
+    const vaildChain = _.every(blockchain, (currentBlock: Block, idx: number, list:BlockChain) => {
+      if (idx === 0) return true // genesisBlock
+      const prevBlock = list[idx - 1]
+      const blockHash = this.hashBlock(prevBlock.hash, { transactions: currentBlock.transactions, index: currentBlock.index }, currentBlock.nonce)
+      const correctHash = blockHash.substring(0, 4) === '0000'
+
+      const correctPreviousBlockHash = currentBlock.previousHash === prevBlock.hash
+      console.log(`${idx} :: ${correctHash} / ${correctPreviousBlockHash}`)
+      return correctHash && correctPreviousBlockHash
+    })
+    const genesisBlock = blockchain[0]
+    const correctGenesisBlock = genesisBlock.nonce === 100 && genesisBlock.previousHash === "0" && genesisBlock.hash === "0"
+    return vaildChain && correctGenesisBlock
   }
 }
