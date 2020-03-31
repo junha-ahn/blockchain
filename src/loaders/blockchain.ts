@@ -111,17 +111,17 @@ export default class BlockChain {
     return data
   }
   public getAddressData = (address) => {
-    const addressTransaction = []
+    const addressTransactions = []
     _.forEach(this.chain, block => 
       _.forEach(block.transactions, tr => {
-        if (tr.recipient === address || tr.sender === address) addressTransaction.push(tr)
+        if (tr.recipient === address || tr.sender === address) addressTransactions.push(tr)
     }))
-    const AddressBalance = _.reduce(addressTransaction, (acc, cur) => {
+    const AddressBalance = _.reduce(addressTransactions, (acc, cur) => {
       cur.recipient === address ? acc += cur.amount : acc -= cur.amount
       return acc
     }, 0)
     return {
-      addressTransaction,
+      addressTransactions,
       AddressBalance
     }
   }

@@ -9,12 +9,9 @@ const route = Router()
 export default (app: Router) => {
   app.use('/', route)
 
-  route.get('/', container(async (req): Promise<Result> => {
-    return {
-      httpCode: 200,
-      message: 'hello World'
-    }
-  }))
+  // route.get('/', (req, res) => {
+  //   res.sendFile('../public/index.html', { root: __dirname })
+  // })
 
   route.get('/blockchain', container(async (req): Promise<Result> => {
     return {
