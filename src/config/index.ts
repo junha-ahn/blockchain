@@ -6,7 +6,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 export default {
   NODE_ENV: process.env.NODE_ENV,
-  port: Number(process.env.PORT || 3000),
+  port: Number(process.argv[2] || process.env.PORT || 3000),
   logs: {
     level: process.env.LOG_LEVEL || 'silly',
   },

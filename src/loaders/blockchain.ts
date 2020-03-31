@@ -1,4 +1,6 @@
 import * as sha256 from 'sha256'
+import * as _ from 'lodash'
+import config from '../config'
 // TODO: Blockchain Class Public/Static 구조 개선 고민
 //
 // - 테스트 생각
@@ -28,7 +30,10 @@ class Transaction {
 export default class BlockChain {
   public chain: Block[] = []
   public pendingTransactions: Transaction[] = []
+  public currentNodeUrl: string
+  public networkNodes: string[] = []
   constructor() {
+    this.currentNodeUrl = `http://localhost:${config.port}`
     this.createNewBlcok(100, '0', '0')
   }
   public createNewBlcok = (nonce, previousBlockHash, hash) => {
@@ -59,5 +64,12 @@ export default class BlockChain {
       hash = this.hashBlock(previousBlockHash, currentBlockData, nonce)
     }
     return nonce
+  }
+  public pushNetworkNodes = (newUrl: string) => {
+    if (!_.some(this.networkNodes, url => url === newUrl) && this.currentNodeUrl != newUrl) {
+      this.networkNodes.push(newUrl)
+      return true
+    }
+    return false
   }
 }
